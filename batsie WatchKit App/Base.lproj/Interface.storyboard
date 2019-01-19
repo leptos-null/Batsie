@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder.WatchKit.Storyboard" version="3.0" toolsVersion="14460.31" targetRuntime="watchKit" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="AgC-eL-Hgc">
+    <device id="watch38" orientation="portrait">
+        <adaptation id="fullscreen"/>
+    </device>
+    <dependencies>
+        <deployment identifier="watchOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14460.20"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBWatchKitPlugin" version="14460.16"/>
+    </dependencies>
+    <scenes>
+        <!--Interface Controller-->
+        <scene sceneID="aou-V4-d1y">
+            <objects>
+                <controller id="AgC-eL-Hgc" customClass="InterfaceController">
+                    <items>
+                        <table alignment="left" id="jjZ-2b-C1j">
+                            <items>
+                                <tableRow identifier="BatteryInfo" selectable="NO" id="pXa-NX-7Uy" customClass="StandardCell">
+                                    <group key="rootItem" width="1" height="0.0" alignment="left" id="TH8-F9-wct">
+                                        <items>
+                                            <imageView alignment="left" contentMode="scaleAspectFit" id="8UK-cQ-1yi"/>
+                                            <group alignment="left" layout="vertical" id="Dva-HR-TVM">
+                                                <items>
+                                                    <label alignment="left" text="Title" numberOfLines="0" id="iNv-Mm-8gN"/>
+                                                    <label alignment="left" verticalAlignment="bottom" text="Subtitle" id="3i1-6v-bOO"/>
+                                                </items>
+                                            </group>
+                                        </items>
+                                    </group>
+                                    <connections>
+                                        <outlet property="detailLabel" destination="3i1-6v-bOO" id="vzH-5R-1rO"/>
+                                        <outlet property="imageView" destination="8UK-cQ-1yi" id="aRL-go-wB2"/>
+                                        <outlet property="titleLabel" destination="iNv-Mm-8gN" id="I0S-W0-QnX"/>
+                                    </connections>
+                                </tableRow>
+                            </items>
+                        </table>
+                    </items>
+                    <connections>
+                        <outlet property="table" destination="jjZ-2b-C1j" id="cIW-Dl-TxL"/>
+                    </connections>
+                </controller>
+            </objects>
+        </scene>
+    </scenes>
+</document>
