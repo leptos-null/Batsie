@@ -11,11 +11,6 @@
 
 #import "../../BatteryCenter/BCBatteryDeviceController.h"
 
-#if TARGET_OS_SIMULATOR
-#   define SYSTEM_RUNTIME_ROOT "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/Library/CoreSimulator/Profiles/Runtimes/iOS.simruntime/Contents/Resources/RuntimeRoot"
-#else
-#   define SYSTEM_RUNTIME_ROOT ""
-#endif
 
 @implementation TableViewController {
     BCBatteryDeviceController *_batteryDeviceController;
@@ -24,7 +19,15 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     
-    NSBundle *batteryBundle = [NSBundle bundleWithPath:@(SYSTEM_RUNTIME_ROOT "/System/Library/PrivateFrameworks/BatteryCenter.framework")];
+    /* these are all good
+     * DYLD_ROOT_PATH
+     * SIMULATOR_ROOT
+     * IPHONE_SIMULATOR_ROOT
+     */
+    const char *root = getenv("DYLD_ROOT_PATH") ?: "";
+    NSString *batteryPath = [@(root) stringByAppendingString:@"/System/Library/PrivateFrameworks/BatteryCenter.framework"];
+    
+    NSBundle *batteryBundle = [NSBundle bundleWithPath:batteryPath];
     NSError *loadErr = nil;
     if ([batteryBundle loadAndReturnError:&loadErr]) {
         _batteryDeviceController = [NSClassFromString(@"BCBatteryDeviceController") sharedInstance];
@@ -51,9 +54,16 @@
     
     cell.textLabel.text = model.name;
     cell.detailTextLabel.text = [NSString stringWithFormat:@"%@%@%%", model.approximatesPercentCharge ? @"~ " : @"",  @(model.percentCharge)];
-    cell.detailTextLabel.textColor = model.charging ? UIColor.greenColor : (model.lowBattery ? UIColor.redColor : UIColor.whiteColor);
+    
+    UIColor *defaultColor;
+    if (@available(iOS 13.0, *)) {
+        defaultColor = UIColor.labelColor;
+    } else {
+        defaultColor = UIColor.blackColor;
+    }
+    cell.detailTextLabel.textColor = model.charging ? UIColor.greenColor : (model.lowBattery ? UIColor.redColor : defaultColor);
     cell.imageView.image = model.glyph;
-    cell.imageView.contentMode = UIViewContentModeScaleAspectFit;
+    cell.imageView.layer.cornerRadius = CGRectGetWidth(cell.imageView.bounds)/6;
     
     return cell;
 }

@@ -11,33 +11,38 @@
 
 #import "../../BatteryCenter/BCBatteryDeviceController.h"
 
-#if TARGET_OS_SIMULATOR
-#   define SYSTEM_RUNTIME_ROOT "/Applications/Xcode.app/Contents/Developer/Platforms/WatchOS.platform/Developer/Library/CoreSimulator/Profiles/Runtimes/watchOS.simruntime/Contents/Resources/RuntimeRoot"
-#else
-#   define SYSTEM_RUNTIME_ROOT ""
-#endif
 
-@implementation InterfaceController
+@implementation InterfaceController {
+    BCBatteryDeviceController *_batteryDeviceController;
+}
 
 - (void)awakeWithContext:(id)context {
     [super awakeWithContext:context];
     
-    NSBundle *batteryBundle = [NSBundle bundleWithPath:@(SYSTEM_RUNTIME_ROOT "/System/Library/PrivateFrameworks/BatteryCenter.framework")];
+    /* these are all good
+     * DYLD_ROOT_PATH
+     * SIMULATOR_ROOT
+     * IPHONE_SIMULATOR_ROOT
+     */
+    const char *root = getenv("DYLD_ROOT_PATH") ?: "";
+    NSString *batteryPath = [@(root) stringByAppendingString:@"/System/Library/PrivateFrameworks/BatteryCenter.framework"];
+    
+    NSBundle *batteryBundle = [NSBundle bundleWithPath:batteryPath];
     NSError *loadErr = nil;
-    if (![batteryBundle loadAndReturnError:&loadErr]) {
+    if ([batteryBundle loadAndReturnError:&loadErr]) {
+        _batteryDeviceController = [NSClassFromString(@"BCBatteryDeviceController") sharedInstance];
+        NSString *notifName = _batteryDeviceController.connectedDevicesDidChangeNotificationName;
+        [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(reloadData) name:notifName object:nil];
+    } else {
+        /* Show error in the UI? */
         NSLog(@"%@", loadErr);
     }
-    BCBatteryDeviceController *batteryDeviceController = [NSClassFromString(@"BCBatteryDeviceController") sharedInstance];
-    
-    NSString *notifName = batteryDeviceController.connectedDevicesDidChangeNotificationName;
-    [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(reloadData) name:notifName object:nil];
     
     [self reloadData];
 }
 
 - (void)reloadData {
-    BCBatteryDeviceController *batteryDeviceController = [NSClassFromString(@"BCBatteryDeviceController") sharedInstance];
-    NSArray<BCBatteryDevice *> *models = batteryDeviceController.connectedDevices;
+    NSArray<BCBatteryDevice *> *models = _batteryDeviceController.connectedDevices;
     
     [self.table setNumberOfRows:models.count withRowType:@"BatteryInfo"];
     [models enumerateObjectsUsingBlock:^(BCBatteryDevice *model, NSUInteger idx, BOOL *stop) {

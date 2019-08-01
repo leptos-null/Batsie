@@ -16,7 +16,12 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     
-    self.batteryDevice = _batteryDevice;
+    if (@available(iOS 13.0, *)) {
+        self.imageView.layer.cornerCurve = kCACornerCurveContinuous;
+    }
+    self.imageView.layer.cornerRadius = CGRectGetWidth(self.imageView.bounds)/6;
+    
+    [self _updateInterfaceForModel:self.batteryDevice];
 }
 
 - (NSString *)_localizedStringForBool:(BOOL)b {
@@ -26,6 +31,10 @@
 - (void)setBatteryDevice:(BCBatteryDevice *)batteryDevice {
     _batteryDevice = batteryDevice;
     
+    [self _updateInterfaceForModel:batteryDevice];
+}
+
+- (void)_updateInterfaceForModel:(BCBatteryDevice *)batteryDevice {
     self.title = batteryDevice.name;
     self.imageView.image = batteryDevice.glyph;
     
